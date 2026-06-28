@@ -78,22 +78,53 @@ async function lookupByName(item: ParsedLineItem) {
   return [];
 }
 
-/** Live CPSC lookup for a purchase line item; upserts matching recalls */
+/**
+ * Match an item against recalls already cached in the store. Used when the live
+ * CPSC API is unreachable, slow, or returns no usable records, so the app keeps
+ * working (degraded) off the DynamoDB catalog instead of failing the ingest.
+ */
+async function findCachedRecallsForItem(
+  store: RecallStore,
+  item: ParsedLineItem,
+): Promise<RecallEvent[]> {
+  const upc = item.upc?.replace(/\D/g, "");
+  if (upc) {
+    const product = await store.findProductByUpc(upc);
+    if (product) {
+      const active = (await store.listRecallsForProduct(product.productId)).filter(
+        (r) => r.status === "ACTIVE",
+      );
+      if (active.length > 0) return active;
+    }
+  }
+
+  const brand = item.brand?.toLowerCase().trim() ?? "";
+  if (brand.length < 3) return [];
+  const active = await store.listActiveRecalls();
+  return active.filter((r) => r.title.toLowerCase().includes(brand));
+}
+
+/** Live CPSC lookup for a purchase line item; upserts matching recalls.
+ *  Falls back to the cached catalog if CPSC is down or returns nothing. */
 export async function lookupAndUpsertRecallsForItem(
   store: RecallStore,
   item: ParsedLineItem,
 ): Promise<RecallEvent[]> {
   let rawRecalls: CpscRecall[] = [];
 
-  if (item.upc) {
-    rawRecalls = await fetchRecallsByUpc(item.upc);
-    if (rawRecalls.length === 0) {
+  try {
+    if (item.upc) {
+      rawRecalls = await fetchRecallsByUpc(item.upc);
+      if (rawRecalls.length === 0) {
+        rawRecalls = await lookupByName(item);
+      }
+    } else if (item.brand?.trim()) {
       rawRecalls = await lookupByName(item);
     }
-  } else if (item.brand?.trim()) {
-    rawRecalls = await lookupByName(item);
-  } else {
     // Name-only search without brand matches too many unrelated CPSC records
+  } catch (err) {
+    // CPSC API unreachable/slow — degrade gracefully to the cached catalog below
+    console.warn("CPSC live lookup failed; using cached catalog", err);
     rawRecalls = [];
   }
 
@@ -106,6 +137,10 @@ export async function lookupAndUpsertRecallsForItem(
     matched.push(recall);
   }
 
+  if (matched.length === 0) {
+    return findCachedRecallsForItem(store, item);
+  }
+
   return matched;
 }
 
@@ -113,7 +148,12 @@ export async function lookupAndUpsertRecallsForItem(
 export async function ensureRecallCatalog(store: RecallStore): Promise<void> {
   const active = await store.listActiveRecalls();
   if (active.length > 0) return;
-  await syncRecallsFromCpsc(store, syncDaysBack());
+  try {
+    await syncRecallsFromCpsc(store, syncDaysBack());
+  } catch (err) {
+    // Don't let a CPSC outage break app startup — serve from cache once seeded.
+    console.warn("Initial CPSC catalog sync failed; continuing with empty catalog", err);
+  }
 }
 
 /** Pull latest CPSC recalls and fan-out alerts to affected owners */

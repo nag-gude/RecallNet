@@ -8,6 +8,21 @@ function daysAgoIso(days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
+const CPSC_TIMEOUT_MS = Number(process.env.CPSC_TIMEOUT_MS) || 7000;
+
+/**
+ * A real CPSC recall always carries a RecallNumber. When CPSC's database is
+ * down, the API returns a synthetic record titled
+ * "Error retrieving Recalls: The underlying provider failed on ...".
+ * Drop those so they never reach normalization.
+ */
+function isValidRecall(r: CpscRecall): boolean {
+  if (!r || typeof r !== "object") return false;
+  if (!r.RecallNumber) return false;
+  if (/^Error retrieving Recalls/i.test(r.Title ?? "")) return false;
+  return true;
+}
+
 async function fetchRecalls(params: Record<string, string>): Promise<CpscRecall[]> {
   const url = new URL(CPSC_BASE);
   url.searchParams.set("format", "json");
@@ -15,17 +30,28 @@ async function fetchRecalls(params: Record<string, string>): Promise<CpscRecall[
     if (v) url.searchParams.set(k, v);
   }
 
-  const res = await fetch(url.toString(), {
-    headers: { Accept: "application/json" },
-    next: { revalidate: 3600 },
-  });
+  // CPSC can hang for tens of seconds during an outage — abort so callers can
+  // fall back to the cached catalog instead of blocking the serverless function.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), CPSC_TIMEOUT_MS);
 
-  if (!res.ok) {
-    throw new Error(`CPSC API error: ${res.status} ${res.statusText}`);
+  let data: unknown;
+  try {
+    const res = await fetch(url.toString(), {
+      headers: { Accept: "application/json" },
+      signal: controller.signal,
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) {
+      throw new Error(`CPSC API error: ${res.status} ${res.statusText}`);
+    }
+    data = await res.json();
+  } finally {
+    clearTimeout(timer);
   }
 
-  const data = (await res.json()) as CpscRecall[];
-  return Array.isArray(data) ? data : [];
+  const list = Array.isArray(data) ? (data as CpscRecall[]) : [];
+  return list.filter(isValidRecall);
 }
 
 /** Fetch recalls published within the last N days */
