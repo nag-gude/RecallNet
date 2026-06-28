@@ -12,7 +12,6 @@
 
 Built for [**H0: Hack the Zero Stack**](https://h01.devpost.com/) — **Next.js on Vercel** + **Amazon DynamoDB**.
 
----
 
 ## Table of contents
 
@@ -30,7 +29,6 @@ Built for [**H0: Hack the Zero Stack**](https://h01.devpost.com/) — **Next.js 
 - [Documentation](#documentation)
 - [Disclaimer](#disclaimer)
 
----
 
 ## Why RecallNet
 
@@ -40,7 +38,6 @@ Every year, tens of millions of consumer-product units are recalled for fire, bu
 
 > **Your shopping history should protect you — not sit forgotten in a PDF export.**
 
----
 
 ## Key features
 
@@ -56,7 +53,6 @@ Every year, tens of millions of consumer-product units are recalled for fire, bu
 | **Anonymous share report** | Generate a no-PII household safety report via a shareable token |
 | **Personal safety graph** | Visualizes you → products → active recalls |
 
----
 
 ## Try it
 
@@ -77,43 +73,15 @@ Other paths:
 - **`/graph`:** safety graph visualization
 - **`/api/health`:** verify the backend — returns `"storage":"dynamodb"` in production
 
----
 
 ## Architecture
 
-```mermaid
-flowchart TB
-  subgraph Client["Browser"]
-    UI["Next.js UI<br/>Upload · Dashboard · Graph · Recalls"]
-  end
-
-  subgraph Vercel["Vercel (Serverless)"]
-    API["Route Handlers<br/>/api/ingest · /api/dashboard · /api/recalls"]
-  end
-
-  subgraph AWS["Amazon Web Services — Terraform IaC"]
-    subgraph DDB["Amazon DynamoDB"]
-      P["products<br/>+ UpcIndex GSI"]
-      O["ownership-events<br/>+ ProductOwnersIndex GSI"]
-      R["recall-events<br/>+ ProductRecallsIndex GSI<br/>+ ActiveRecallsIndex GSI"]
-      S["user-recall-status"]
-    end
-  end
-
-  subgraph External["External"]
-    CPSC["CPSC SaferProducts.gov<br/>Live Recall API"]
-  end
-
-  UI -->|HTTPS| API
-  API -->|AWS SDK v3| DDB
-  API -->|fetch recalls| CPSC
-  CPSC -->|normalize + upsert| R
-  R -->|ProductOwnersIndex fan-out| S
-```
+<p align="center">
+  <img src="assets/recallnet-architecture.png" width="820" />
+</p>
 
 **Flow:** the Next.js frontend on Vercel calls serverless route handlers, which read/write Amazon DynamoDB via AWS SDK v3 and query the live CPSC API. Recalls are normalized and upserted; alerts are a materialized projection fanned out to affected owners through a GSI.
 
----
 
 ## Data model (Amazon DynamoDB)
 
@@ -130,7 +98,6 @@ Four PAY_PER_REQUEST tables, provisioned via Terraform ([terraform/dynamodb.tf](
 
 > A local in-memory store ([src/lib/db/memory.ts](src/lib/db/memory.ts)) backs `npm run dev` so you can run the whole app with **zero AWS setup**; production uses DynamoDB ([src/lib/db/dynamodb.ts](src/lib/db/dynamodb.ts)). The backend selection is automatic — see [src/lib/db/client.ts](src/lib/db/client.ts).
 
----
 
 ## Tech stack
 
@@ -144,7 +111,6 @@ Four PAY_PER_REQUEST tables, provisioned via Terraform ([terraform/dynamodb.tf](
 | Infrastructure | **Terraform** (DynamoDB, IAM least-privilege, optional S3) |
 | Language | TypeScript (strict), Tailwind CSS |
 
----
 
 ## Quick start (local)
 
@@ -160,7 +126,6 @@ Open <http://localhost:3001> → go to `/upload` → **Load video demo CSV** →
 
 > The local store is process-wide but **not** shared across serverless instances — production requires DynamoDB.
 
----
 
 ## Production deploy
 
@@ -179,7 +144,6 @@ curl https://recall-net.vercel.app/api/health
 
 Required Vercel environment variables (including `NEXT_PUBLIC_APP_URL`, needed for working share links) are listed in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). Full deploy guide: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
----
 
 ## Project structure
 
@@ -207,7 +171,6 @@ RecallNet/
 └── docs/                     # Architecture, Deployment, API, Demo, Submission
 ```
 
----
 
 ## API reference
 
@@ -224,7 +187,6 @@ RecallNet/
 
 Full request/response schemas: [docs/API.md](docs/API.md).
 
----
 
 ## Hackathon submission
 
@@ -232,7 +194,6 @@ Full request/response schemas: [docs/API.md](docs/API.md).
 - **AWS database:** Amazon DynamoDB
 - **Frontend:** Vercel (prototyped with v0.app)
 
----
 
 ## Documentation
 
@@ -257,7 +218,6 @@ Full request/response schemas: [docs/API.md](docs/API.md).
 | `npm run infra:seed` | Seed DynamoDB from CPSC |
 | `npm run infra:destroy` | Tear down AWS infrastructure |
 
----
 
 ## Disclaimer
 
