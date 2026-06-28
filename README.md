@@ -12,6 +12,21 @@
 
 Built for [**H0: Hack the Zero Stack**](https://h01.devpost.com/) — **Next.js on Vercel** + **Amazon DynamoDB**.
 
+[![Live demo](https://img.shields.io/badge/live%20demo-recall--net.vercel.app-000000?logo=vercel&logoColor=white)](https://recall-net.vercel.app)
+![H0 Hackathon](https://img.shields.io/badge/H0-Hack%20the%20Zero%20Stack-ff5c5c)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+
+![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3-06B6D4?logo=tailwindcss&logoColor=white)
+
+![Amazon DynamoDB](https://img.shields.io/badge/Amazon%20DynamoDB-4053D6?logo=amazondynamodb&logoColor=white)
+![AWS SDK v3](https://img.shields.io/badge/AWS%20SDK-v3-232F3E?logo=amazonwebservices&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-deployed-000000?logo=vercel&logoColor=white)
+![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?logo=terraform&logoColor=white)
+![CPSC data](https://img.shields.io/badge/data-CPSC%20SaferProducts.gov-005ea2)
+
 
 ## Table of contents
 
