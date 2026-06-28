@@ -224,3 +224,8 @@ Full request/response schemas: [docs/API.md](docs/API.md).
 RecallNet is an **informational tool**. Recall matches are best-effort and may include false positives or miss recalls. Always verify with the manufacturer and the official [CPSC](https://www.cpsc.gov/) / [SaferProducts.gov](https://www.saferproducts.gov/) recall pages before acting. Not affiliated with the CPSC or any retailer.
 
 Built for [H0: Hack the Zero Stack](https://h01.devpost.com/).
+
+
+## License
+
+MIT — see [LICENSE](LICENSE).
