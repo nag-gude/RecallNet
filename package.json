@@ -1,0 +1,40 @@
+{
+  "name": "recallnet",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "lint": "next lint",
+    "seed": "npx tsx scripts/seed-dynamodb.ts",
+    "sync:recalls": "npx tsx scripts/seed-dynamodb.ts",
+    "infra:init": "cd terraform && terraform init",
+    "infra:plan": "cd terraform && terraform plan",
+    "infra:apply": "cd terraform && terraform apply",
+    "infra:destroy": "cd terraform && terraform destroy",
+    "infra:output": "cd terraform && terraform output",
+    "infra:deploy": "bash scripts/deploy-aws.sh",
+    "infra:seed": "bash -c 'source scripts/terraform-env.sh && npm run seed'"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.700.0",
+    "@aws-sdk/lib-dynamodb": "^3.700.0",
+    "@zxing/browser": "^0.2.0",
+    "next": "14.2.18",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/uuid": "^10.0.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

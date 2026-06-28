@@ -1,0 +1,7 @@
+/** Live CPSC products verified against SaferProducts.gov API (video + judge flow) */
+export const VIDEO_DEMO_CSV = `order_date,title,brand,model,upc,quantity,price,retailer
+2022-01-15,Cosori Dual Blaze Air Fryer,Cosori,Dual Blaze,,1,119.99,Online Store
+2025-06-01,Arizer Solo III Portable Vaporizer,Arizer,Solo III,628078802274,1,299.99,Wellness Store
+2025-08-01,BABESIDE Doll and Stroller Playset,BABESIDE,Doll Stroller,,1,39.99,Online Store
+2024-03-01,Organic Cotton Sheets,,,,2,34.99,Home Store
+2024-06-01,LED Desk Lamp,,,,1,29.99,Retail Store`;
