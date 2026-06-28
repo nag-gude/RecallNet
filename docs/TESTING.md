@@ -262,12 +262,12 @@ Verified against SaferProducts.gov API (June 2026):
 After Vercel deploy:
 
 ```bash
-curl https://YOUR_APP.vercel.app/api/health
+curl https://recall-net.vercel.app/api/health
 # storage should be "dynamodb"
 
-curl -X POST https://YOUR_APP.vercel.app/api/ingest/csv \
+curl -X POST https://recall-net.vercel.app/api/ingest/csv \
   -H "Content-Type: application/json" \
   -d '{"userId":"prod-test-1","csv":"order_date,title,brand,model,upc,quantity,price,retailer\n2023-05-01,Cosori Air Fryer,Cosori,Dual Blaze,,1,99.99,Store"}'
 ```
 
-Then open `https://YOUR_APP.vercel.app/dashboard?userId=prod-test-1`
+Then open `https://recall-net.vercel.app/dashboard?userId=prod-test-1`

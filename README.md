@@ -60,7 +60,7 @@ Every year, tens of millions of consumer-product units are recalled for fire, bu
 
 ## Try it
 
-**Live app:** `https://YOUR_APP.vercel.app` _(published before submission)_
+**Live app:** **<https://recall-net.vercel.app>** — running on Amazon DynamoDB (verify at [`/api/health`](https://recall-net.vercel.app/api/health))
 
 Fastest path (no login required):
 
@@ -173,7 +173,7 @@ vercel --prod            # Deploy the frontend + API to Vercel
 Then verify the backend is live on DynamoDB:
 
 ```bash
-curl https://YOUR_APP.vercel.app/api/health
+curl https://recall-net.vercel.app/api/health
 # → {"status":"ok","storage":"dynamodb","recallSource":"cpsc.gov", ...}
 ```
 
